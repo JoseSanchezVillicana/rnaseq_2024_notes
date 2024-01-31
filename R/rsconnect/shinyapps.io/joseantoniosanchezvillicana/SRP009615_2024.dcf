@@ -1,0 +1,13 @@
+name: SRP009615_2024
+title: SRP009615_2024
+username: joseantoniosanchezvillicana
+account: joseantoniosanchezvillicana
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11090933
+bundleId: 8203928
+url: https://joseantoniosanchezvillicana.shinyapps.io/SRP009615_2024/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 01_rnaseq.R|02-visualizar-mtcars.R|03_intro_bioconductor.R|04_Summarized_Experiment.R|05_recount3.R
