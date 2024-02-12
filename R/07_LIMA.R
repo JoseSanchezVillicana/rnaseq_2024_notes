@@ -10,7 +10,7 @@ rse_gene_SRP045638 <- create_rse(
   )
 )
 assay(rse_gene_SRP045638, "counts") <- compute_read_counts(rse_gene_SRP045638)
-
+rse_gene_SRP045638
 
 ## ----describe_issue--------------------
 rse_gene_SRP045638$sra.sample_attributes[1:3]
@@ -70,8 +70,8 @@ rse_gene_SRP045638 <- rse_gene_SRP045638[, rse_gene_SRP045638$assigned_gene_prop
 # genefilter::genefilter() https://bioconductor.org/packages/genefilter/ https://rdrr.io/bioc/genefilter/man/genefilter.html
 # jaffelab::expression_cutoff() http://research.libd.org/jaffelab/reference/expression_cutoff.html
 #
-gene_means <- rowMeans(assay(rse_gene_SRP045638, "counts"))
-summary(gene_means)
+gene_means_foo <- rowMeans(assay(rse_gene_SRP045638, "counts"))
+summary(gene_means_foo)
 
 ## Eliminamos genes con bajos niveles de expresión
 rse_gene_SRP045638 <- rse_gene_SRP045638[gene_means > 0.1, ]
@@ -85,12 +85,12 @@ round(nrow(rse_gene_SRP045638) / nrow(rse_gene_SRP045638_unfiltered) * 100, 2)
     # Normalización de los datos
 
 library("edgeR") # BiocManager::install("edgeR", update = FALSE)
-dge <- DGEList(
+dge_foo <- DGEList(
   counts = assay(rse_gene_SRP045638, "counts"),
   genes = rowData(rse_gene_SRP045638)
 )
-dge <- calcNormFactors(dge)
-
+dge_foo <- calcNormFactors(dge_foo)
+dge_foo
     # Expresión Diferencial
 
 library("ggplot2")
@@ -100,17 +100,17 @@ ggplot(as.data.frame(colData(rse_gene_SRP045638)), aes(y = assigned_gene_prop, x
   ylab("Assigned Gene Prop") +
   xlab("Age Group")
 
-mod <- model.matrix(~ prenatal + sra_attribute.RIN + sra_attribute.sex + assigned_gene_prop,
+mod_foo <- model.matrix(~ prenatal + sra_attribute.RIN + sra_attribute.sex + assigned_gene_prop,
                     data = colData(rse_gene_SRP045638)
 )
-colnames(mod)
+colnames(mod_foo)
     # Un valor de -2 en prenatal sería un gen que tendría mayor expresión en prenatal que en postnatal
     # prenatalprenatal -> nombre variable, no referencia
 
 # Podemos usar limma para realizar el análisis de expresión diferencial como tal
 
 library("limma")
-vGene <- voom(dge, mod, plot = TRUE)
+vGene <- voom(dge_foo, mod_foo, plot = TRUE)
 
 eb_results <- eBayes(lmFit(vGene))
 
@@ -206,7 +206,11 @@ pheatmap(
 )
 
 
-# Ejercicio de Revisión
+
+
+
+
+# ---------------- Ejercicio de Revisión ------------------------
 '''
 ¿Debemos explorar las relaciones entre nuestras variables con información de nuestras muestras previo a hacer un análisis de expresión diferencial?
 ¿Por qué usamos el paquete edgeR?
