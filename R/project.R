@@ -1,7 +1,6 @@
 library("recount3")
 
     ## ----download_SRP140558--------------
-## Sólo tiene dos parámetros
 
 human_projects <- available_projects()
 
@@ -12,7 +11,6 @@ rse_gene <- create_rse(
   )
 )
 assay(rse_gene, "counts") <- compute_read_counts(rse_gene)
-rse_gene
 
 ## ----attributes------------------------
 
@@ -23,7 +21,7 @@ colData(rse_gene)[
 ]
 
 ## ----re_cast---------------------------
-## Pasar de character a numeric o factor
+## Pasar de character a factor
 rse_gene$sra_attribute.visit <- as.factor(rse_gene$sra_attribute.visit)
 rse_gene$sra_attribute.group <- factor(tolower(rse_gene$sra_attribute.group))
 
@@ -43,17 +41,18 @@ rse_gene$assigned_gene_prop <- rse_gene$recount_qc.gene_fc_count_all.assigned / 
 summary(rse_gene$assigned_gene_prop)
 
 with(colData(rse_gene), plot(assigned_gene_prop, sra_attribute.group))
-
 with(colData(rse_gene), plot(assigned_gene_prop, sra_attribute.visit))
 
-## Eliminemos a muestras malas
-hist(rse_gene_unfiltered$assigned_gene_prop)
+## Eliminemos muestras malas
 rse_gene_unfiltered <- rse_gene
+hist(rse_gene_unfiltered$assigned_gene_prop)
+
 
 rse_gene <- rse_gene[, rse_gene$assigned_gene_prop > 0.3]
 
 gene_means <- rowMeans(assay(rse_gene, "counts"))
 summary(gene_means)
+
 ## Eliminamos genes con bajos niveles de expresión
 rse_gene <- rse_gene[gene_means > 0.1, ]
 
@@ -81,7 +80,6 @@ ggplot(as.data.frame(colData(rse_gene)), aes(y = assigned_gene_prop, x = sra_att
   theme_bw(base_size = 20) +
   ylab("Assigned Gene Prop") +
   xlab("Age Group")
-
   # Están casi iguales
 
 mod <- model.matrix(~ sra_attribute.group + sra_attribute.visit + assigned_gene_prop,
@@ -89,7 +87,7 @@ mod <- model.matrix(~ sra_attribute.group + sra_attribute.visit + assigned_gene_
 )
 colnames(mod)
 
-# Podemos usar limma para realizar el análisis de expresión diferencial como tal
+# limma para realizar el análisis de expresión diferencial como tal
 
 library("limma")
 vGene <- voom(dge, mod, plot = TRUE)
@@ -99,7 +97,7 @@ eb_results <- eBayes(lmFit(vGene))
 de_results <- topTable(
   eb_results,
   coef = 2, #'prenatalprenatal'
-  number = nrow(rse_gene_SRP045638),
+  number = nrow(rse_gene),
   sort.by = "none"
 )
 dim(de_results)
@@ -126,7 +124,6 @@ exprs_heatmap <- vGene$E[rank(de_results$adj.P.Val) <= 50, ] # Mayor señal de e
 ## y con nombres de columnas más amigables
 df <- as.data.frame(colData(rse_gene)[, c("sra_attribute.group", "sra_attribute.visit")])
 colnames(df) <- c("AgeGroup", "Visit")
-df
 
 ## Hagamos un heatmap
 library("pheatmap")
